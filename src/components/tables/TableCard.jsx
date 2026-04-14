@@ -113,8 +113,8 @@ function StopModal({ table, onConfirm, onCancel }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
-      <div className="w-full max-w-sm bg-surface-container-high border border-outline-variant/20 rounded-[2.5rem] p-8 shadow-2xl glass-card animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-        <div className="flex flex-col items-center text-center mb-8">
+      <div className="w-full max-w-sm bg-surface-container-high border border-outline-variant/20 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl glass-card animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <div className="flex flex-col items-center text-center mb-6 sm:mb-8">
           <div className="w-16 h-16 rounded-3xl bg-error/10 flex items-center justify-center mb-4 border border-error/20">
             <span className="material-symbols-outlined text-3xl text-error icon-filled">stop_circle</span>
           </div>
@@ -215,7 +215,7 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
         ? 'border-2 border-tertiary/20 bg-surface-container/60 active-card'
         : 'border border-outline-variant/20 bg-surface-container/40 opacity-80 hover:opacity-100'
 
-  const cardClass = `relative rounded-[2rem] p-6 flex flex-col gap-5 transition-all duration-500 overflow-hidden glass-card ${
+  const cardClass = `relative rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col gap-4 md:gap-5 transition-all duration-500 overflow-hidden glass-card ${
     selectable && !selected ? 'grayscale-[50%]' : ''
   } ${borderClass}`
 
@@ -267,7 +267,7 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
 
         {/* Timer Display */}
         <div className="flex flex-col items-center justify-center py-2">
-          <span className={`font-mono font-black tracking-tighter leading-none select-none transition-all duration-500 ${timerClass} ${table.active ? 'text-5xl scale-110 drop-shadow-[0_0_15px_rgba(74,225,118,0.2)]' : 'text-4xl'}`}>
+          <span className={`font-mono font-black tracking-tighter leading-none select-none transition-all duration-500 ${timerClass} ${table.active ? 'text-4xl sm:text-5xl scale-110 drop-shadow-[0_0_15px_rgba(74,225,118,0.2)]' : 'text-3xl sm:text-4xl'}`}>
             {table.active ? formatTime(Math.floor((now - table.startTime) / 1000)) : '00:00:00'}
           </span>
           <p className="text-[10px] text-outline-variant font-black uppercase tracking-[0.3em] mt-3">{table.active ? 'Jonli seans' : 'Tayyor'}</p>
@@ -309,7 +309,7 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
           {!selectable && (
             <button
                onClick={(e) => { e.stopPropagation(); table.active ? setShowStopModal(true) : startTable(table.id) }}
-               className={`relative overflow-hidden px-8 py-4 rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-300 active:scale-95 group/btn ${table.active ? 'bg-error text-white shadow-[0_8px_20px_rgba(248,113,113,0.3)] hover:shadow-[0_12px_25px_rgba(248,113,113,0.4)]' : 'bg-white/[0.03] text-indigo border border-indigo/30 hover:bg-indigo hover:text-white shadow-[0_8px_20px_rgba(99,102,241,0.1)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.3)]'}`}
+               className={`relative overflow-hidden px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[1.25rem] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all duration-300 active:scale-95 group/btn ${table.active ? 'bg-error text-white shadow-[0_8px_20px_rgba(248,113,113,0.3)] hover:shadow-[0_12px_25px_rgba(248,113,113,0.4)]' : 'bg-white/[0.03] text-indigo border border-indigo/30 hover:bg-indigo hover:text-white shadow-[0_8px_20px_rgba(99,102,241,0.1)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.3)]'}`}
              >
                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
                <span className="relative z-10">{table.active ? 'Tugatish' : 'Boshlash'}</span>

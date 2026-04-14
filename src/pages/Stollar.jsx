@@ -62,7 +62,7 @@ export default function Stollar({ onAddTable }) {
                setIsMultiSelect(!isMultiSelect)
                setSelectedIds([])
              }}
-             className={`flex items-center gap-3 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] border ${isMultiSelect ? 'bg-indigo border-indigo shadow-[0_10px_20px_rgba(99,102,241,0.2)] text-white' : 'bg-white/[0.02] text-white/50 hover:bg-white/5 hover:text-white border-white/5'}`}
+             className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] border ${isMultiSelect ? 'bg-indigo border-indigo shadow-[0_10px_20px_rgba(99,102,241,0.2)] text-white' : 'bg-white/[0.02] text-white/50 hover:bg-white/5 hover:text-white border-white/5'}`}
            >
              <span className="material-symbols-outlined text-[16px]">{isMultiSelect ? 'close' : 'checklist'}</span>
              {isMultiSelect ? 'Bekor qilish' : 'Guruhli tanlash'}
@@ -161,32 +161,32 @@ export default function Stollar({ onAddTable }) {
 
       {/* Floating Action Bar */}
       {isMultiSelect && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#0c0c0e]/95 backdrop-blur-[60px] border border-white/10 px-8 py-5 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] ring-1 ring-white/5 z-[100] flex items-center gap-8 animate-in slide-in-from-bottom-10 fade-in duration-300">
-          <div className="flex flex-col border-r border-white/10 pr-8 mr-2">
-            <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] leading-tight">Tanlandi</span>
-            <span className="text-3xl font-black text-white leading-none mt-1.5">{selectedIds.length} <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">ta</span></span>
+        <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 bg-[#0c0c0e]/95 backdrop-blur-[60px] border border-white/10 px-4 sm:px-8 py-3.5 sm:py-5 rounded-3xl sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] ring-1 ring-white/5 z-[100] flex items-center gap-4 sm:gap-8 w-[95%] sm:w-auto overflow-x-auto no-scrollbar animate-in slide-in-from-bottom-10 fade-in duration-300">
+          <div className="flex flex-col border-r border-white/10 pr-4 sm:pr-8 mr-1 sm:mr-2">
+            <span className="text-[8px] sm:text-[9px] font-black text-white/40 uppercase tracking-[0.3em] leading-tight">Tanlandi</span>
+            <span className="text-xl sm:text-3xl font-black text-white leading-none mt-1.5 whitespace-nowrap">{selectedIds.length} <span className="text-[9px] sm:text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">ta</span></span>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {inactiveSelected.length > 0 && (
               <button
                 onClick={handleStartMultiple}
-                className="group/btn relative overflow-hidden flex items-center gap-3 px-8 py-4 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] text-white/70 border border-white/10 bg-white/[0.03] hover:bg-white/10 hover:text-white active:scale-[0.98] transition-all shadow-lg"
+                className="group/btn relative overflow-hidden flex items-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[8px] sm:text-[10px] text-white/70 border border-white/10 bg-white/[0.03] hover:bg-white/10 hover:text-white active:scale-[0.98] transition-all shadow-lg whitespace-nowrap"
               >
                 <div className="absolute inset-0 bg-white/5 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-                <span className="material-symbols-outlined text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-                <span className="relative z-10">Boshlash ({inactiveSelected.length})</span>
+                <span className="material-symbols-outlined text-[14px] sm:text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                <span className="relative z-10">Boshlash <span className="hidden sm:inline">({inactiveSelected.length})</span></span>
               </button>
             )}
 
             {activeSelected.length > 0 && (
               <button
                 onClick={handleStopMultiple}
-                className="group/btn relative overflow-hidden flex items-center gap-3 px-8 py-4 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] bg-error text-white shadow-[0_10px_20px_rgba(248,113,113,0.3)] hover:shadow-[0_15px_30px_rgba(248,113,113,0.4)] active:scale-[0.98] transition-all"
+                className="group/btn relative overflow-hidden flex items-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[8px] sm:text-[10px] bg-error text-white shadow-[0_10px_20px_rgba(248,113,113,0.3)] hover:shadow-[0_15px_30px_rgba(248,113,113,0.4)] active:scale-[0.98] transition-all whitespace-nowrap"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-                <span className="material-symbols-outlined text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>stop</span>
-                <span className="relative z-10">Tugatish ({activeSelected.length})</span>
+                <span className="material-symbols-outlined text-[14px] sm:text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>stop</span>
+                <span className="relative z-10">Tugatish <span className="hidden sm:inline">({activeSelected.length})</span></span>
               </button>
             )}
 

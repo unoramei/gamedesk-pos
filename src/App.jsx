@@ -45,7 +45,7 @@ function AppShell() {
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
-        <main className="pt-24 px-4 sm:px-8 pb-12 w-full overflow-x-hidden min-h-screen page-enter" key={refreshKey}>
+        <main className="pt-24 px-2 sm:px-4 md:px-8 pb-12 w-full overflow-x-hidden min-h-screen page-enter" key={refreshKey}>
           {state.page === 'dashboard' && <Dashboard />}
           {state.page === 'zonalar' && <Stollar onAddTable={() => setShowAddTable(true)} />}
           {state.page === 'foyda' && <Foyda />}

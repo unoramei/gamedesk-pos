@@ -65,7 +65,7 @@ export default function Dashboard() {
       {/* KPI stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {STATS.map(s => (
-          <div key={s.label} className="bg-surface-container/30 border border-outline-variant/10 rounded-[2rem] p-6 glass-card group hover:border-indigo/30 transition-all duration-500">
+          <div key={s.label} className="bg-surface-container/30 border border-outline-variant/10 rounded-2xl md:rounded-[2rem] p-4 md:p-6 glass-card group hover:border-indigo/30 transition-all duration-500">
             <div className={`w-12 h-12 rounded-2xl ${s.bg} flex items-center justify-center mb-4 border border-outline-variant/5 transition-transform group-hover:scale-110 duration-500`}>
               <span className={`material-symbols-outlined text-2xl ${s.color} icon-filled`}>{s.icon}</span>
             </div>

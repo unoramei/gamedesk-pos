@@ -24,14 +24,14 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
   const activeTables = state.tables.filter(t => t.active).length
 
   return (
-    <header className={`fixed top-0 right-0 h-20 px-4 md:px-8 flex justify-between items-center glass-header transition-all duration-300 z-30 ${isSidebarOpen ? 'w-full lg:w-[calc(100%-240px)]' : 'w-full'}`}>
+    <header className={`fixed top-0 right-0 h-[70px] sm:h-20 px-3 md:px-8 flex justify-between items-center glass-header transition-all duration-300 z-30 ${isSidebarOpen ? 'w-full lg:w-[calc(100%-240px)]' : 'w-full'}`}>
       {/* Left: title + breadcrumb */}
       <div className="flex items-center gap-3 md:gap-4">
         <button
           onClick={onToggleSidebar}
-          className="p-2 -ml-2 text-outline hover:text-white hover:bg-white/5 rounded-xl transition-all"
+          className="p-1.5 sm:p-2 -ml-1 sm:-ml-2 text-outline hover:text-white hover:bg-white/5 rounded-xl transition-all"
         >
-          <span className="material-symbols-outlined">{isSidebarOpen ? 'menu_open' : 'menu'}</span>
+          <span className="material-symbols-outlined text-[20px] sm:text-2xl">{isSidebarOpen ? 'menu_open' : 'menu'}</span>
         </button>
 
         <div className="flex flex-col">
@@ -105,9 +105,9 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
           <button
             id="add-table-btn"
             onClick={onAddTable}
-            className="flex items-center gap-2 bg-indigo text-white px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 duration-150 hover:shadow-2xl hover:shadow-indigo/30"
+            className="flex items-center gap-1.5 sm:gap-2 bg-indigo text-white px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all active:scale-95 duration-150 hover:shadow-2xl hover:shadow-indigo/30"
           >
-            <span className="material-symbols-outlined text-lg icon-filled">add_circle</span>
+            <span className="material-symbols-outlined text-base sm:text-lg icon-filled">add_circle</span>
             <span className="hidden xs:inline">Stol qo'shish</span>
           </button>
         )}
