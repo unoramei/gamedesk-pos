@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePos, calcTotal, formatTime, formatPrice } from '../../context/PosContext'
+import ReceiptModal from './ReceiptModal'
 
 // ─── Food Drawer ──────────────────────────────────────────────────────────────
 
@@ -19,34 +20,34 @@ function FoodDrawer({ table, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-md transition-all animate-in fade-in"
       onClick={onClose}
     >
       <div
-        className="w-80 h-full bg-surface-container-high border-l border-outline-variant/20 shadow-2xl flex flex-col"
+        className="w-full sm:w-80 h-full bg-surface-container-high border-l border-outline-variant/20 shadow-2xl flex flex-col glass-card animate-in slide-in-from-right duration-300"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-outline-variant/10">
           <div>
-            <h3 className="font-bold text-on-surface text-sm uppercase tracking-wider">
-              Buyurtma qo'shish
+            <h3 className="font-black text-on-surface text-sm uppercase tracking-widest">
+              Buyurtma
             </h3>
-            <p className="text-[11px] text-outline mt-0.5">{table.name}</p>
+            <p className="text-[10px] text-outline font-bold uppercase tracking-widest mt-0.5">{table.name}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-outline hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors"
+            className="p-2 text-outline hover:text-on-surface hover:bg-surface-container rounded-xl transition-all"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
         {/* Foods */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 no-scrollbar">
           {Object.entries(grouped).map(([cat, foods]) => (
             <div key={cat}>
-              <p className="text-[10px] font-bold text-outline uppercase tracking-widest mb-2 px-1">
+              <p className="text-[10px] font-black text-outline uppercase tracking-[0.2em] mb-3 px-2">
                 {cat}
               </p>
               <div className="space-y-2">
@@ -55,29 +56,29 @@ function FoodDrawer({ table, onClose }) {
                   return (
                     <div
                       key={food.id}
-                      className="bg-surface-container rounded-lg border border-outline-variant/10 flex items-center justify-between px-3 py-2.5 hover:border-outline-variant/30 transition-colors"
+                      className="bg-surface-container/50 rounded-2xl border border-outline-variant/10 flex items-center justify-between px-4 py-3 hover:border-indigo/30 transition-all group"
                     >
-                      <div>
-                        <p className="text-sm font-medium text-on-surface">{food.name}</p>
-                        <p className="text-[11px] font-mono text-outline">{formatPrice(food.price)}</p>
+                      <div className="flex-1">
+                        <p className="text-[13px] font-black text-on-surface tracking-tight">{food.name}</p>
+                        <p className="text-[11px] font-mono text-outline-variant">{formatPrice(food.price)}</p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         {qty > 0 && (
                           <>
                             <button
                               onClick={() => removeOrder({ tableId: table.id, foodId: food.id })}
-                              className="w-7 h-7 rounded-md bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-outline-variant/20 transition-colors"
+                              className="w-8 h-8 rounded-xl bg-surface-container-high border border-outline-variant/20 flex items-center justify-center text-on-surface hover:bg-error/10 hover:text-error transition-all"
                             >
                               <span className="material-symbols-outlined text-base">remove</span>
                             </button>
-                            <span className="text-sm font-bold text-on-surface w-4 text-center">
+                            <span className="text-sm font-black font-mono text-on-surface w-4 text-center">
                               {qty}
                             </span>
                           </>
                         )}
                         <button
                           onClick={() => addOrder({ tableId: table.id, foodId: food.id })}
-                          className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors"
+                          className="w-8 h-8 rounded-xl bg-indigo/10 border border-indigo/20 flex items-center justify-center text-indigo hover:bg-indigo hover:text-white transition-all shadow-sm"
                         >
                           <span className="material-symbols-outlined text-base">add</span>
                         </button>
@@ -90,13 +91,13 @@ function FoodDrawer({ table, onClose }) {
           ))}
         </div>
 
-        {/* Confirm */}
-        <div className="px-4 py-4 border-t border-outline-variant/20">
+        {/* Footer */}
+        <div className="p-6 border-t border-outline-variant/20 bg-surface-container-high/50">
           <button
             onClick={onClose}
-            className="w-full bg-primary text-on-primary font-bold py-3 rounded-lg uppercase tracking-widest text-xs hover:opacity-90 transition-opacity active:scale-95"
+            className="w-full bg-indigo text-white font-black py-4 rounded-2xl uppercase tracking-[0.2em] text-xs hover:shadow-2xl hover:shadow-indigo/20 transition-all active:scale-[0.98]"
           >
-            Tasdiqlash
+            Tayyor
           </button>
         </div>
       </div>
@@ -111,61 +112,44 @@ function StopModal({ table, onConfirm, onCancel }) {
   const total = calcTotal(table, state.foods)
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={onCancel}
-    >
-      <div
-        className="bg-surface-container-high border border-outline-variant/20 rounded-xl p-6 w-80 shadow-2xl"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center">
-            <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'FILL' 1" }}>
-              stop_circle
-            </span>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div className="w-full max-w-sm bg-surface-container-high border border-outline-variant/20 rounded-[2.5rem] p-8 shadow-2xl glass-card animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="w-16 h-16 rounded-3xl bg-error/10 flex items-center justify-center mb-4 border border-error/20">
+            <span className="material-symbols-outlined text-3xl text-error icon-filled">stop_circle</span>
           </div>
-          <div>
-            <h3 className="font-bold text-on-surface text-sm">Seans tugatilsinmi?</h3>
-            <p className="text-[11px] text-outline">{table.name}</p>
+          <h3 className="text-xl font-black text-on-surface tracking-tighter">Sessiyani yakunlash?</h3>
+          <p className="text-[11px] text-outline font-bold uppercase tracking-widest mt-1.5">{table.name} — To'lov qabul qilindi</p>
+        </div>
+
+        <div className="bg-surface-container/40 border border-outline-variant/10 rounded-3xl p-6 mb-8 space-y-4">
+          <div className="flex justify-between items-center text-[13px]">
+            <span className="text-outline-variant font-medium">Boshlangan vaqt</span>
+            <span className="font-mono text-on-surface">{new Date(table.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          <div className="flex justify-between items-center text-[13px]">
+            <span className="text-outline-variant font-medium">Davomiyligi</span>
+            <span className="font-mono text-on-surface font-black text-tertiary">{formatTime(Math.floor((Date.now() - table.startTime) / 1000))}</span>
+          </div>
+          <div className="h-px bg-outline-variant/10 border-t border-dashed border-outline-variant/20" />
+          <div className="flex justify-between items-baseline pt-2">
+            <span className="text-xs font-black text-outline uppercase tracking-widest">Jami to'lov</span>
+            <span className="text-2xl font-black text-on-surface font-mono">{formatPrice(total)}</span>
           </div>
         </div>
 
-        <div className="bg-surface-container rounded-lg p-3 mb-4 space-y-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-outline">Vaqt</span>
-            <span className="font-mono text-on-surface">{formatTime(table.elapsedSeconds)}</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-outline">Narx / soat</span>
-            <span className="font-mono text-on-surface">{formatPrice(table.pricePerHour)}</span>
-          </div>
-          {table.orders.length > 0 && (
-            <div className="flex justify-between text-xs">
-              <span className="text-outline">Buyurtmalar</span>
-              <span className="font-mono text-on-surface">
-                {table.orders.reduce((s, o) => s + o.qty, 0)} ta
-              </span>
-            </div>
-          )}
-          <div className="pt-2 border-t border-outline-variant/10 flex justify-between">
-            <span className="text-xs font-bold text-outline uppercase tracking-wider">Jami</span>
-            <span className="font-mono font-bold text-on-surface">{formatPrice(total)}</span>
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-2.5 rounded-lg border border-outline-variant/20 text-outline text-xs font-bold uppercase tracking-wider hover:bg-surface-container transition-colors"
-          >
-            Bekor
-          </button>
+        <div className="flex flex-col gap-3">
           <button
             onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-lg bg-error text-on-error text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity active:scale-95"
+            className="w-full py-4 rounded-2xl bg-error text-white text-xs font-black uppercase tracking-widest hover:shadow-2xl hover:shadow-error/20 active:scale-[0.98] transition-all"
           >
-            Tugatish
+            To'lovni tasdiqlash
+          </button>
+          <button
+            onClick={onCancel}
+            className="w-full py-4 text-outline hover:text-on-surface text-xs font-black uppercase tracking-widest transition-colors"
+          >
+            Bekor qilish
           </button>
         </div>
       </div>
@@ -176,9 +160,11 @@ function StopModal({ table, onConfirm, onCancel }) {
 // ─── Table Card ───────────────────────────────────────────────────────────────
 
 export default function TableCard({ table, selectable, selected, onSelect }) {
-  const { state, startTable, stopTable, removeOrder, updateTablePrice } = usePos()
+  const { state, startTable, stopTable, updateTablePrice } = usePos()
   const [showFoodDrawer, setShowFoodDrawer] = useState(false)
   const [showStopModal,  setShowStopModal]  = useState(false)
+  const [showReceipt,    setShowReceipt]    = useState(false)
+  const [receiptData,    setReceiptData]    = useState(null)
   const [isEditingPrice, setIsEditingPrice] = useState(false)
   const [editPriceVal,   setEditPriceVal]   = useState(String(table.pricePerHour))
 
@@ -190,170 +176,122 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
     setIsEditingPrice(false)
   }
 
-  const total  = calcTotal(table, state.foods)
+  const handleStop = () => {
+    const elapsedSeconds = Math.floor((Date.now() - table.startTime) / 1000)
+    const session = {
+      id: Date.now(),
+      tableName: table.name,
+      pricePerHour: table.pricePerHour,
+      elapsedSeconds,
+      orders: [...table.orders],
+      total: calcTotal({ ...table, elapsedSeconds }, state.foods),
+      endTime: Date.now()
+    }
+    setReceiptData(session)
+    stopTable(table.id)
+    setShowStopModal(false)
+    setShowReceipt(true)
+  }
+
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    if (!table.active) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [table.active])
+
+  const total  = calcTotal(table, state.foods, now)
   const isVip  = table.isVip
 
-  // If selectable, border tells us if selected
+  // Selection/Styling
   const borderClass = selectable
     ? selected
       ? 'border-2 border-indigo bg-indigo/5 ring-4 ring-indigo/20 scale-[0.98]'
       : 'border-2 border-outline-variant/30 hover:border-indigo/50 cursor-pointer opacity-60 hover:opacity-100 hover:scale-[0.98]'
     : isVip
-      ? 'border-2 border-amber/20'
+      ? 'border-2 border-amber/30 bg-surface-container/80 vip-card'
       : table.active
-        ? 'border border-tertiary/20 bg-surface-container'
-        : 'border border-outline-variant/20 bg-surface-container opacity-80 hover:opacity-100'
+        ? 'border-2 border-tertiary/20 bg-surface-container/60 active-card'
+        : 'border border-outline-variant/20 bg-surface-container/40 opacity-80 hover:opacity-100'
 
-  const cardClass = `relative rounded-xl p-5 flex flex-col gap-4 transition-all duration-300 overflow-hidden ${
-    !selectable && isVip ? 'bg-surface-container-high' : ''
-  } ${selectable && !selected ? 'grayscale-[30%]' : ''} ${borderClass}`
-
-  const iconClass = isVip
-    ? 'bg-amber/10 border-amber/20 text-amber'
-    : table.active
-      ? 'bg-surface-container-high border-outline-variant/10 text-primary'
-      : 'bg-surface-container-low border-outline-variant/10 text-outline'
+  const cardClass = `relative rounded-[2rem] p-6 flex flex-col gap-5 transition-all duration-500 overflow-hidden glass-card ${
+    selectable && !selected ? 'grayscale-[50%]' : ''
+  } ${borderClass}`
 
   const timerClass = isVip
     ? 'text-amber'
     : table.active
-      ? 'text-tertiary timer-pulse'
+      ? 'text-tertiary'
       : 'text-outline-variant opacity-40'
-
-  const handleCardClick = () => {
-    if (selectable && onSelect) onSelect()
-  }
 
   return (
     <>
-      <div className={cardClass} onClick={handleCardClick}>
+      <div className={cardClass} onClick={() => selectable && onSelect && onSelect()}>
         
-        {/* Selection checkmark */}
-        {selectable && (
-          <div className={`absolute top-4 right-4 w-5 h-5 rounded border flex items-center justify-center transition-colors ${selected ? 'bg-indigo border-indigo text-white' : 'border-outline-variant/50 text-transparent'}`}>
-             <span className="material-symbols-outlined text-[14px]">check</span>
-          </div>
-        )}
-
         {/* VIP ambient glow */}
         {isVip && (
-          <div className="absolute -right-6 -top-6 w-20 h-20 bg-amber/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -right-10 -top-10 w-32 h-32 bg-amber/10 rounded-full blur-3xl pointer-events-none" />
         )}
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${iconClass}`}>
-              <span
-                className="material-symbols-outlined text-2xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                {isVip ? 'sports_esports' : 'monitor'}
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 ${table.active ? 'bg-indigo/10 border-indigo/20 text-indigo' : 'bg-surface-container border-outline-variant/10 text-outline'}`}>
+              <span className="material-symbols-outlined text-2xl icon-filled">
+                {isVip ? 'workspace_premium' : 'monitor'}
               </span>
             </div>
             <div>
-              <h4 className="font-bold text-on-surface text-sm">{table.name}</h4>
-              <div className="flex items-center gap-1.5 min-h-[16px]">
+              <h4 className="font-black text-on-surface text-sm tracking-tight">{table.name}</h4>
+              <div className="flex items-center gap-1.5 min-h-[16px] mt-0.5">
                 {isEditingPrice ? (
-                  <div className="flex items-center gap-1 bg-surface-container border border-indigo rounded px-1.5 py-0.5">
-                    <input
-                      autoFocus
-                      type="text"
-                      className="bg-transparent border-none outline-none font-mono text-[10px] text-on-surface w-16"
-                      value={editPriceVal}
-                      onChange={e => setEditPriceVal(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') commitPrice(); if (e.key === 'Escape') setIsEditingPrice(false) }}
-                      onClick={e => e.stopPropagation()}
-                    />
-                    <button onClick={e => { e.stopPropagation(); commitPrice(); }} className="text-tertiary">
-                      <span className="material-symbols-outlined text-[14px]">check</span>
-                    </button>
+                  <div className="flex items-center gap-1.5 bg-surface-container-highest border border-indigo rounded-xl px-2 py-0.5" onClick={e => e.stopPropagation()}>
+                    <input autoFocus value={editPriceVal} onChange={e => setEditPriceVal(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') commitPrice(); if (e.key === 'Escape') setIsEditingPrice(false) }} className="bg-transparent border-none outline-none font-mono text-[10px] text-on-surface w-16" />
+                    <button onClick={commitPrice} className="text-tertiary"><span className="material-symbols-outlined text-[14px]">check</span></button>
                   </div>
                 ) : (
-                  <div 
-                    className="flex items-center gap-1 group/p cursor-pointer p-0.5 -m-0.5 rounded hover:bg-surface-container-high transition-colors"
-                    onClick={(e) => { e.stopPropagation(); setEditPriceVal(String(table.pricePerHour)); setIsEditingPrice(true); }}
-                  >
-                    <p className={`text-[11px] font-mono uppercase tracking-tight ${isVip ? 'text-amber' : 'text-outline'}`}>
-                      {formatPrice(table.pricePerHour)} / soat
-                    </p>
-                    <span className="material-symbols-outlined text-[11px] text-outline opacity-0 group-hover/p:opacity-100 transition-opacity">edit</span>
+                  <div className="flex items-center gap-1.5 group/p cursor-pointer" onClick={(e) => { e.stopPropagation(); setEditPriceVal(String(table.pricePerHour)); setIsEditingPrice(true); }}>
+                    <p className={`text-[10px] font-black uppercase tracking-widest ${isVip ? 'text-amber' : 'text-outline'}`}>{formatPrice(table.pricePerHour)}</p>
+                    <span className="material-symbols-outlined text-[12px] text-outline opacity-0 group-hover/p:opacity-100 transition-opacity">edit_note</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Status badge */}
-          {table.active ? (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-tertiary/10 text-tertiary text-[10px] font-bold uppercase tracking-wider rounded-full border border-tertiary/20 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse" />
-              Faol
-            </span>
-          ) : (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 bg-outline-variant/10 text-outline text-[10px] font-bold uppercase tracking-wider rounded-full border border-outline-variant/20 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-outline" />
-              Bo'sh
-            </span>
-          )}
+          <div className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all duration-500 ${table.active ? 'bg-tertiary/10 text-tertiary border-tertiary/20' : 'bg-outline-variant/10 text-outline border-outline-variant/10'}`}>
+             {table.active ? 'Faol' : 'Bo\'sh'}
+          </div>
         </div>
 
-        {/* ── Timer ── */}
-        <div className="flex flex-col items-center justify-center py-1">
-          <span className={`font-mono tracking-tight select-none ${timerClass} ${isVip && table.active ? 'text-4xl' : 'text-3xl'}`}>
-            {formatTime(table.elapsedSeconds)}
+        {/* Timer Display */}
+        <div className="flex flex-col items-center justify-center py-2">
+          <span className={`font-mono font-black tracking-tighter leading-none select-none transition-all duration-500 ${timerClass} ${table.active ? 'text-5xl scale-110 drop-shadow-[0_0_15px_rgba(74,225,118,0.2)]' : 'text-4xl'}`}>
+            {table.active ? formatTime(Math.floor((now - table.startTime) / 1000)) : '00:00:00'}
           </span>
-          <p className="text-[10px] text-outline-variant uppercase tracking-widest mt-1">
-            {table.active
-              ? (isVip ? 'Premium sessiya' : 'Sessiya davom etmoqda')
-              : 'Kutilmoqda'}
-          </p>
+          <p className="text-[10px] text-outline-variant font-black uppercase tracking-[0.3em] mt-3">{table.active ? 'Jonli seans' : 'Tayyor'}</p>
         </div>
 
-        {/* ── Orders ── */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center">
-            <span className="text-[11px] font-bold text-outline-variant uppercase tracking-wider">
-              Ovqatlar:
-            </span>
+        {/* Orders List */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-[10px] font-black text-outline-variant uppercase tracking-[0.2em]">Servis</span>
             {table.active && !selectable && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowFoodDrawer(true); }}
-                className="flex items-center gap-0.5 text-xs font-bold text-primary hover:bg-primary/10 px-2 py-0.5 rounded-md transition-colors"
-              >
-                <span className="material-symbols-outlined text-sm">add</span>
-              </button>
+              <button onClick={(e) => { e.stopPropagation(); setShowFoodDrawer(true); }} className="w-7 h-7 flex items-center justify-center rounded-xl bg-indigo/5 text-indigo hover:bg-indigo hover:text-white transition-all border border-indigo/10 shadow-sm"><span className="material-symbols-outlined text-sm">add</span></button>
             )}
           </div>
-
-          <div className="flex flex-wrap gap-1.5 min-h-[28px]">
+          <div className="flex flex-wrap gap-2 min-h-[32px] content-start">
             {table.orders.length === 0 ? (
-              <div className="flex items-center justify-center w-full min-h-[28px] border border-dashed border-outline-variant/15 rounded-lg">
-                <span className="text-[9px] text-outline-variant uppercase tracking-widest">
-                  Buyurtmalar yo'q
-                </span>
+              <div className="flex items-center justify-center w-full min-h-[32px] border border-dashed border-outline-variant/10 rounded-2xl">
+                <span className="text-[9px] text-outline-variant font-black uppercase tracking-[0.2em]">—</span>
               </div>
             ) : (
               table.orders.map(o => {
                 const food = state.foods.find(f => f.id === o.foodId)
-                if (!food) return null
                 return (
-                  <span
-                    key={o.foodId}
-                    className="flex items-center gap-1 px-2 py-1 bg-surface-container-high text-on-surface-variant text-[10px] rounded-lg border border-outline-variant/10"
-                  >
-                    {food.name} ({o.qty})
-                    {table.active && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          removeOrder({ tableId: table.id, foodId: o.foodId })
-                        }}
-                        className="text-outline hover:text-error transition-colors ml-0.5 flex items-center"
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>close</span>
-                      </button>
-                    )}
+                  <span key={o.foodId} className="flex items-center gap-2 px-3 py-1.5 bg-surface-container-highest/50 text-on-surface text-[10px] font-black rounded-xl border border-outline-variant/10">
+                    {food?.name} <span className="text-outline">× {o.qty}</span>
                   </span>
                 )
               })
@@ -361,47 +299,39 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
           </div>
         </div>
 
-        {/* ── Footer ── */}
-        <div className="pt-3 border-t border-outline-variant/10 flex justify-between items-center h-12">
-          <div>
-            <p className={`text-[10px] uppercase tracking-widest font-bold ${isVip ? 'text-amber' : 'text-outline'}`}>
-              JAMI:
-            </p>
-            <span className={`text-lg font-bold font-mono ${table.active ? 'text-on-surface' : 'text-outline-variant'}`}>
-              {formatPrice(total)}
-            </span>
+        {/* Footer */}
+        <div className="pt-5 border-t border-outline-variant/10 flex justify-between items-end">
+          <div className="flex flex-col">
+            <span className="text-[9px] font-black text-outline uppercase tracking-[0.2em] mb-1">Hisoblangan</span>
+            <span className={`text-2xl font-black font-mono tracking-tighter ${table.active ? 'text-on-surface' : 'text-outline-variant'}`}>{formatPrice(total)}</span>
           </div>
 
           {!selectable && (
-            table.active ? (
-              <button
-                id={`stop-${table.id}`}
-                onClick={(e) => { e.stopPropagation(); setShowStopModal(true); }}
-                className="bg-error text-on-error font-bold text-[11px] px-4 py-2 uppercase tracking-widest rounded-lg hover:opacity-90 active:scale-95 transition-all"
-              >
-                {isVip ? 'Yakunlash' : "To'xtatish"}
-              </button>
-            ) : (
-              <button
-                id={`start-${table.id}`}
-                onClick={(e) => { e.stopPropagation(); startTable(table.id); }}
-                className="bg-tertiary text-on-tertiary font-bold text-[11px] px-4 py-2 uppercase tracking-widest rounded-lg hover:opacity-90 active:scale-95 transition-all"
-              >
-                Boshlash
-              </button>
-            )
+            <button
+               onClick={(e) => { e.stopPropagation(); table.active ? setShowStopModal(true) : startTable(table.id) }}
+               className={`relative overflow-hidden px-8 py-4 rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-300 active:scale-95 group/btn ${table.active ? 'bg-error text-white shadow-[0_8px_20px_rgba(248,113,113,0.3)] hover:shadow-[0_12px_25px_rgba(248,113,113,0.4)]' : 'bg-white/[0.03] text-indigo border border-indigo/30 hover:bg-indigo hover:text-white shadow-[0_8px_20px_rgba(99,102,241,0.1)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.3)]'}`}
+             >
+               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+               <span className="relative z-10">{table.active ? 'Tugatish' : 'Boshlash'}</span>
+             </button>
           )}
         </div>
       </div>
 
-      {showFoodDrawer && (
-        <FoodDrawer table={table} onClose={() => setShowFoodDrawer(false)} />
-      )}
+      {showFoodDrawer && <FoodDrawer table={table} onClose={() => setShowFoodDrawer(false)} />}
+      
       {showStopModal && (
-        <StopModal
-          table={table}
-          onConfirm={() => { stopTable(table.id); setShowStopModal(false) }}
-          onCancel={() => setShowStopModal(false)}
+        <StopModal 
+          table={table} 
+          onConfirm={handleStop}
+          onCancel={() => setShowStopModal(false)} 
+        />
+      )}
+
+      {showReceipt && (
+        <ReceiptModal 
+          session={receiptData} 
+          onClose={() => setShowReceipt(false)} 
         />
       )}
     </>

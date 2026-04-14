@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { usePos, calcTotal, formatTime, formatPrice, getLocalDayString } from '../context/PosContext'
 
 export default function Dashboard() {
@@ -11,8 +12,15 @@ export default function Dashboard() {
     .filter(h => h.date !== todayStr)
     .reduce((s, h) => s + h.revenue, 0)
 
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    if (activeTables.length === 0) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [activeTables.length])
+
   // Current session values (active + completed today)
-  const liveRevenueValue = activeTables.reduce((s, t) => s + calcTotal(t, state.foods), 0)
+  const liveRevenueValue = activeTables.reduce((s, t) => s + calcTotal(t, state.foods, now), 0)
   const completedToday   = state.completedSessions.filter(s => s.date === todayStr)
   const completedTodayVal = completedToday.reduce((s, sess) => s + sess.total, 0)
 
@@ -25,141 +33,155 @@ export default function Dashboard() {
       label:   'Faol stollar',
       value:   activeTables.length,
       suffix:  ` / ${state.tables.length}`,
-      icon:    'monitor',
-      color:   'text-primary',
-      bg:      'bg-primary/10',
+      icon:    'monitor_heart',
+      color:   'text-indigo',
+      bg:      'bg-indigo/10',
     },
     {
       label:  "Bugungi foyda",
       value:  formatPrice(todayRevenue),
-      icon:   'today',
+      icon:   'account_balance',
       color:  'text-tertiary',
       bg:     'bg-tertiary/10',
     },
     {
-      label:  "Jonli daromad",
+      label:  "Jonli kassa",
       value:  formatPrice(liveRevenue),
-      icon:   'payments',
+      icon:   'token',
       color:  'text-amber',
       bg:     'bg-amber/10',
     },
     {
-      label:  "Jami daromad",
+      label:  "Umumiy balans",
       value:  formatPrice(totalRevenue),
-      icon:   'account_balance_wallet',
-      color:  'text-indigo',
-      bg:     'bg-indigo/10',
+      icon:   'savings',
+      color:  'text-primary',
+      bg:     'bg-primary/10',
     },
   ]
 
   return (
-    <div>
+    <div className="space-y-10 page-enter">
       {/* KPI stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {STATS.map(s => (
-          <div key={s.label} className="bg-surface-container border border-outline-variant/20 rounded-xl p-5">
-            <div className="flex items-start justify-between mb-3">
-              <div className={`w-10 h-10 rounded-lg ${s.bg} flex items-center justify-center`}>
-                <span className={`material-symbols-outlined ${s.color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                  {s.icon}
-                </span>
-              </div>
+          <div key={s.label} className="bg-surface-container/30 border border-outline-variant/10 rounded-[2rem] p-6 glass-card group hover:border-indigo/30 transition-all duration-500">
+            <div className={`w-12 h-12 rounded-2xl ${s.bg} flex items-center justify-center mb-4 border border-outline-variant/5 transition-transform group-hover:scale-110 duration-500`}>
+              <span className={`material-symbols-outlined text-2xl ${s.color} icon-filled`}>{s.icon}</span>
             </div>
-            <p className="text-[11px] text-outline uppercase tracking-widest font-bold mb-1">{s.label}</p>
-            <p className={`text-2xl font-bold font-mono ${s.color} leading-none`}>
+            <p className="text-[10px] text-outline uppercase tracking-[0.2em] font-black mb-1.5">{s.label}</p>
+            <p className={`text-2xl font-black font-mono tracking-tighter ${s.color} leading-none`}>
               {s.value}
-              {s.suffix && <span className="text-base text-outline font-mono ml-1">{s.suffix}</span>}
+              {s.suffix && <span className="text-sm text-outline-variant font-mono ml-2 font-medium">{s.suffix}</span>}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Active Tables Live View */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-bold text-outline uppercase tracking-widest">Faol seanlar</h3>
-          <span className="text-[10px] text-outline-variant">Har soniyada yangilanadi</span>
-        </div>
-
-        {activeTables.length === 0 ? (
-          <div className="bg-surface-container border border-dashed border-outline-variant/20 rounded-xl p-10 flex flex-col items-center gap-3 text-outline">
-            <span className="material-symbols-outlined text-4xl">timer_off</span>
-            <p className="text-sm">Hozirda faol seans yo'q</p>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Active Tables Live View */}
+        <div className="xl:col-span-2 space-y-4">
+          <div className="flex items-center justify-between px-2">
+            <div>
+              <h3 className="text-lg font-black text-on-surface tracking-tight uppercase">Jonli seanslar</h3>
+              <p className="text-[10px] text-outline font-black uppercase tracking-[0.2em] mt-1">Hozirda faol ishlayotgan stollar</p>
+            </div>
           </div>
-        ) : (
-          <div className="bg-surface-container border border-outline-variant/20 rounded-xl overflow-hidden">
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-left min-w-[700px]">
-                <thead>
-                <tr className="bg-surface-container-high border-b border-outline-variant/10">
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider">Stol</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider">Zona</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider">Vaqt</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider">Buyurtmalar</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider text-right">Joriy summa</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/10">
-                {activeTables.map(t => {
-                  const zone  = state.zones.find(z => z.id === t.zoneId)
-                  const total = calcTotal(t, state.foods)
-                  return (
-                    <tr key={t.id} className="hover:bg-surface-container-high/30 transition-colors">
-                      <td className="px-5 py-3">
-                        <span className="font-semibold text-on-surface text-sm">{t.name}</span>
-                        {t.isVip && (
-                          <span className="ml-2 text-[9px] text-amber font-bold uppercase bg-amber/10 border border-amber/20 px-1.5 py-0.5 rounded-full">VIP</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-3 text-sm text-outline">{zone?.name ?? '—'}</td>
-                      <td className="px-5 py-3 font-mono text-sm text-tertiary timer-pulse">{formatTime(t.elapsedSeconds)}</td>
-                      <td className="px-5 py-3 text-sm text-outline-variant">
-                        {t.orders.length === 0 ? '—' : t.orders.map(o => {
-                          const food = state.foods.find(f => f.id === o.foodId)
-                          return food ? `${food.name}(${o.qty})` : ''
-                        }).join(', ')}
-                      </td>
-                      <td className="px-5 py-3 font-mono font-bold text-on-surface text-sm text-right">
-                        {formatPrice(total)}
-                      </td>
+
+          {activeTables.length === 0 ? (
+            <div className="bg-surface-container/20 border-2 border-dashed border-outline-variant/10 rounded-[2.5rem] p-16 flex flex-col items-center gap-4 text-outline-variant glass-card">
+              <div className="w-20 h-20 rounded-full bg-outline-variant/5 flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl">cloud_off</span>
+              </div>
+              <p className="text-sm font-black uppercase tracking-widest opacity-40">Hozirda faol seans yo'q</p>
+            </div>
+          ) : (
+            <div className="bg-surface-container/30 border border-outline-variant/10 rounded-[2.5rem] overflow-hidden glass-card">
+              <div className="overflow-x-auto w-full">
+                <table className="w-full text-left min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-outline-variant/10">
+                      <th className="px-6 py-5 text-[10px] font-black text-outline uppercase tracking-[0.2em]">Stol</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-outline uppercase tracking-[0.2em]">Vaqt</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-outline uppercase tracking-[0.2em]">Servis</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-outline uppercase tracking-[0.2em] text-right">Summa</th>
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/5">
+                    {activeTables.map(t => {
+                      const total = calcTotal(t, state.foods)
+                      return (
+                        <tr key={t.id} className="hover:bg-indigo/5 transition-colors group">
+                          <td className="px-6 py-5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-outline group-hover:border-indigo/30 group-hover:text-indigo transition-all">
+                                <span className="material-symbols-outlined text-xl icon-filled">{t.isVip ? 'workspace_premium' : 'monitor'}</span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-black text-on-surface">{t.name}</p>
+                                <p className="text-[10px] text-outline font-bold uppercase tracking-widest">{t.isVip ? 'VIP' : 'Standard'}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-5">
+                            <span className="font-mono text-base font-black text-tertiary drop-shadow-[0_0_8px_rgba(74,225,118,0.2)]">{formatTime(Math.floor((now - t.startTime) / 1000))}</span>
+                          </td>
+                          <td className="px-6 py-5">
+                            <div className="flex flex-wrap gap-1">
+                              {t.orders.length === 0 ? <span className="text-[10px] text-outline-variant uppercase tracking-widest">—</span> : t.orders.slice(0, 2).map((o, idx) => {
+                                const food = state.foods.find(f => f.id === o.foodId)
+                                return <span key={idx} className="px-2 py-0.5 bg-surface-container-highest rounded text-[10px] font-bold text-on-surface-variant">{food?.name}</span>
+                              })}
+                              {t.orders.length > 2 && <span className="text-[10px] text-outline font-black">+{t.orders.length - 2}</span>}
+                            </div>
+                          </td>
+                          <td className="px-6 py-5 text-right font-mono font-black text-on-surface">
+                            {formatPrice(calcTotal(t, state.foods, now))}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Recent sessions */}
-      {state.completedSessions.length > 0 && (
-        <div>
-          <h3 className="text-xs font-bold text-outline uppercase tracking-widest mb-4">Oxirgi seanlar</h3>
-          <div className="bg-surface-container border border-outline-variant/20 rounded-xl overflow-hidden">
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-left min-w-[400px]">
-                <thead>
-                <tr className="bg-surface-container-high border-b border-outline-variant/10">
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider">Stol</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider">Davomiyligi</th>
-                  <th className="px-5 py-3 text-[11px] font-bold text-outline uppercase tracking-wider text-right">Jami</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/10">
-                {state.completedSessions.slice(0, 8).map(s => (
-                  <tr key={s.id} className="hover:bg-surface-container-high/30 transition-colors">
-                    <td className="px-5 py-3 text-sm font-semibold text-on-surface">{s.tableName}</td>
-                    <td className="px-5 py-3 font-mono text-sm text-outline-variant">{formatTime(s.elapsedSeconds)}</td>
-                    <td className="px-5 py-3 font-mono font-bold text-tertiary text-sm text-right">{formatPrice(s.total)}</td>
-                  </tr>
+        {/* Recent sessions */}
+        <div className="space-y-4">
+          <div className="px-2">
+            <h3 className="text-lg font-black text-on-surface tracking-tight uppercase">Tarix</h3>
+            <p className="text-[10px] text-outline font-black uppercase tracking-[0.2em] mt-1">Oxirgi yakunlangan sessiyalar</p>
+          </div>
+
+          <div className="bg-surface-container/30 border border-outline-variant/10 rounded-[2.5rem] overflow-hidden glass-card">
+            {state.completedSessions.length === 0 ? (
+              <div className="p-10 text-center text-outline-variant italic text-xs">Hali ma'lumot yo'q</div>
+            ) : (
+              <div className="divide-y divide-outline-variant/5">
+                {state.completedSessions.slice(0, 6).map(s => (
+                  <div key={s.id} className="p-5 hover:bg-surface-container/50 transition-colors flex justify-between items-center group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-surface-container-high border border-outline-variant/10 flex items-center justify-center text-outline group-hover:text-indigo transition-colors">
+                        <span className="material-symbols-outlined text-[16px]">receipt</span>
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-black text-on-surface">{s.tableName}</p>
+                        <p className="text-[10px] text-outline font-medium">{formatTime(s.elapsedSeconds)}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[13px] font-black text-tertiary font-mono">{formatPrice(s.total)}</p>
+                      <p className="text-[9px] text-outline-variant font-bold uppercase tracking-tighter">{new Date(s.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

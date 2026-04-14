@@ -1,4 +1,4 @@
-# GameDesk POS — React App
+# AXIPH POS — React App
 
 Gaming club uchun professional POS tizimi. Vaqt va pul hisoblashni to'liq avtomatlashtiradi.
 

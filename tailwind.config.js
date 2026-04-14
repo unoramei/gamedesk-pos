@@ -56,10 +56,10 @@ export default {
         'amber':                    '#F59E0B',
       },
       fontFamily: {
-        sans:     ['Inter', 'ui-sans-serif', 'system-ui'],
-        headline: ['Inter'],
+        sans:     ['Outfit', 'Inter', 'ui-sans-serif', 'system-ui'],
+        headline: ['Outfit'],
         body:     ['Inter'],
-        label:    ['Inter'],
+        label:    ['Outfit'],
         mono:     ['JetBrains Mono', 'monospace'],
       },
       borderRadius: {

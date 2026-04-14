@@ -2,80 +2,100 @@ import { usePos } from '../../context/PosContext'
 
 const PAGE_TITLES = {
   dashboard: 'Asosiy boshqaruv',
-  zonalar:   'Zonalar / Stollar',
-  foyda:     'Foyda tahlili',
-  admin:     'Admin boshqaruvi',
+  zonalar: 'Zonalar / Stollar',
+  foyda: 'Foyda tahlili',
+  smenalar: 'Smenalar',
+  admin: 'Admin boshqaruvi',
 }
 
 const PAGE_ICONS = {
   dashboard: 'dashboard',
-  zonalar:   'layers',
-  foyda:     'trending_up',
-  admin:     'settings',
+  zonalar: 'layers',
+  foyda: 'trending_up',
+  smenalar: 'badge',
+  admin: 'settings',
 }
 
-export default function TopAppBar({ onAddTable, onRefresh, onToggleSidebar }) {
+export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onToggleSidebar }) {
   const { state, setPage } = usePos()
   const title = PAGE_TITLES[state.page] || ''
-  const icon  = PAGE_ICONS[state.page] || ''
+  const icon = PAGE_ICONS[state.page] || ''
 
   const activeTables = state.tables.filter(t => t.active).length
 
   return (
-    <header className="fixed top-0 right-0 w-full lg:w-[calc(100%-220px)] h-16 px-4 md:px-8 flex justify-between items-center bg-background/90 backdrop-blur-md border-b border-outline-variant/20 z-40 transition-all duration-300">
+    <header className={`fixed top-0 right-0 h-20 px-4 md:px-8 flex justify-between items-center glass-header transition-all duration-300 z-30 ${isSidebarOpen ? 'w-full lg:w-[calc(100%-240px)]' : 'w-full'}`}>
       {/* Left: title + breadcrumb */}
       <div className="flex items-center gap-3 md:gap-4">
         <button
           onClick={onToggleSidebar}
-          className="lg:hidden p-1.5 -ml-1.5 text-outline hover:text-on-surface hover:bg-surface-container rounded-lg"
+          className="p-2 -ml-2 text-outline hover:text-white hover:bg-white/5 rounded-xl transition-all"
         >
-          <span className="material-symbols-outlined">menu</span>
+          <span className="material-symbols-outlined">{isSidebarOpen ? 'menu_open' : 'menu'}</span>
         </button>
 
-        <div className="flex items-center gap-2 md:gap-2.5">
-          <span className="material-symbols-outlined text-outline text-lg hidden sm:block">{icon}</span>
-          <h2 className="font-headline text-base md:text-lg font-semibold tracking-tight text-on-surface truncate max-w-[120px] sm:max-w-none">{title}</h2>
-        </div>
-        <div className="h-4 w-px bg-outline-variant/30 hidden sm:block" />
-        <div className="flex items-center gap-1.5 md:gap-2 text-outline text-xs md:text-sm">
-          <span className="material-symbols-outlined text-[10px] md:text-sm hidden xs:block">circle</span>
-          <span className="whitespace-nowrap">
-            <span className="text-tertiary font-semibold">{activeTables}</span>
-            <span className="ml-1 hidden xs:inline">faol stol</span>
-          </span>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-outline text-lg hidden sm:block">{icon}</span>
+            <h2 className="font-headline text-lg md:text-xl font-black tracking-tight text-on-surface truncate max-w-[150px] sm:max-w-none">{title}</h2>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_8px_rgba(74,225,118,0.5)]" />
+            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-outline-variant">
+              System Online <span className="mx-1.5">|</span> <span className="text-tertiary uppercase">{activeTables} faol stol</span>
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Right: actions */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center bg-surface-container border border-outline-variant/30 rounded-lg p-1 mr-2">
+      <div className="flex items-center gap-2 md:gap-4">
+        <div className="hidden lg:flex items-center bg-surface-container/40 p-1.5 rounded-2xl border border-outline-variant/10">
           <button
             onClick={() => setPage('dashboard')}
-            className={`p-1.5 rounded text-outline hover:text-indigo hover:bg-indigo/10 transition-colors ${state.page === 'dashboard' ? 'text-indigo bg-indigo/10' : ''}`}
-            title="Asosiy boshqaruv"
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'dashboard' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
-            <span className="material-symbols-outlined text-[18px]">dashboard</span>
+            <span className="material-symbols-outlined text-xl">dashboard</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Boshqaruv</span>
           </button>
+
+          <button
+            onClick={() => { setPage('zonalar'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'zonalar' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
+          >
+            <span className="material-symbols-outlined text-xl">layers</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Zonalar</span>
+          </button>
+
           <button
             onClick={() => setPage('foyda')}
-            className={`p-1.5 rounded text-outline hover:text-indigo hover:bg-indigo/10 transition-colors ${state.page === 'foyda' ? 'text-indigo bg-indigo/10' : ''}`}
-            title="Foyda tahlili"
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'foyda' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
-            <span className="material-symbols-outlined text-[18px]">trending_up</span>
+            <span className="material-symbols-outlined text-xl">insights</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Foyda</span>
           </button>
+
+          <button
+            onClick={() => setPage('smenalar')}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'smenalar' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
+          >
+            <span className="material-symbols-outlined text-xl">badge</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Smenalar</span>
+          </button>
+
           <button
             onClick={() => setPage('admin')}
-            className={`p-1.5 rounded text-outline hover:text-indigo hover:bg-indigo/10 transition-colors ${state.page === 'admin' ? 'text-indigo bg-indigo/10' : ''}`}
-            title="Admin boshqaruvi"
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'admin' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
-            <span className="material-symbols-outlined text-[18px]">settings</span>
+            <span className="material-symbols-outlined text-xl">settings_input_component</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Sozlamalar</span>
           </button>
         </div>
 
         <button
           id="refresh-btn"
           onClick={onRefresh}
-          className="p-2 text-outline hover:text-on-surface hover:bg-surface-container rounded-lg transition-all active:scale-95 duration-100"
+          className="p-3 text-outline hover:text-on-surface hover:bg-surface-container rounded-2xl transition-all active:scale-90 duration-150"
           title="Yangilash"
         >
           <span className="material-symbols-outlined text-xl">refresh</span>
@@ -85,20 +105,10 @@ export default function TopAppBar({ onAddTable, onRefresh, onToggleSidebar }) {
           <button
             id="add-table-btn"
             onClick={onAddTable}
-            className="flex items-center gap-2 bg-indigo text-white px-4 py-2 rounded-lg font-medium text-sm transition-all active:scale-95 duration-100 hover:opacity-90"
+            className="flex items-center gap-2 bg-indigo text-white px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 duration-150 hover:shadow-2xl hover:shadow-indigo/30"
           >
-            <span className="material-symbols-outlined text-sm icon-filled">add_circle</span>
-            Stol qo'shish
-          </button>
-        )}
-
-        {state.page === 'admin' && (
-          <button
-            id="save-admin-btn"
-            className="flex items-center gap-2 bg-indigo text-white px-4 py-2 rounded-lg font-medium text-sm transition-all active:scale-95 duration-100 hover:opacity-90"
-          >
-            <span className="material-symbols-outlined text-sm icon-filled">save</span>
-            Saqlash
+            <span className="material-symbols-outlined text-lg icon-filled">add_circle</span>
+            <span className="hidden xs:inline">Stol qo'shish</span>
           </button>
         )}
       </div>
