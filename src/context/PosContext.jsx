@@ -294,7 +294,8 @@ export function mapTableData(tables, zones) {
       active: t.is_active,
       startTime: t.start_time ? new Date(t.start_time).getTime() : null,
       isVip: zone ? zone.is_vip : false,
-      pricePerHour: zone ? zone.price_per_hour : 10000,
+      pricePerHour: t.price_per_hour || (zone ? zone.price_per_hour : 10000),
+      orders: t.orders || [],
     }
   })
 }
@@ -320,8 +321,9 @@ export function mapShiftData(shift) {
 }
 
 export function mapSessionData(sessions, tables = []) {
+  const tableList = tables || []
   return (sessions || []).map(s => {
-    const table = tables.find(t => t.id === s.table_id)
+    const table = tableList.find(t => t.id === s.table_id)
     return {
       ...s,
       tableId: s.table_id,
@@ -332,7 +334,7 @@ export function mapSessionData(sessions, tables = []) {
       total: s.total_amount,
       date: s.start_time ? s.start_time.split('T')[0] : getLocalDayString(),
     }
-  }).sort((a, b) => b.endTime - a.endTime)
+  }).sort((a, b) => (b.endTime || 0) - (a.endTime || 0))
 }
 
 export function aggregateRevenue(sessions) {
@@ -355,18 +357,19 @@ function updateRevenueHistory(history, amount) {
   return [...history, { date: today, revenue: amount }]
 }
 
-export function calcTotal(table, foods = INITIAL_FOODS) {
+export function calcTotal(table, foods = INITIAL_FOODS, now = Date.now(), minPrice = 0) {
   // If no startTime, timeCost is 0
   if (!table.active && !table.elapsedSeconds && table.elapsedSeconds !== 0) return 0
   
-  // Changed ?? to || because elapsedSeconds: 0 is default for active tables
-  const seconds = table.elapsedSeconds || (table.startTime ? Math.floor((Date.now() - table.startTime) / 1000) : 0)
+  const seconds = table.elapsedSeconds || (table.startTime ? Math.floor((now - table.startTime) / 1000) : 0)
   const timeCost = (seconds / 3600) * table.pricePerHour
-  const foodCost = table.orders.reduce((sum, o) => {
+  const foodCost = (table.orders || []).reduce((sum, o) => {
     const food = foods.find(f => f.id === o.foodId)
     return sum + (food ? food.price * o.qty : 0)
   }, 0)
-  return Math.round(timeCost + foodCost)
+  
+  const total = Math.round(timeCost + foodCost)
+  return Math.max(total, minPrice)
 }
 
 export function formatTime(seconds) {
@@ -512,7 +515,7 @@ export function PosProvider({ children }) {
 
       const now = new Date().toISOString()
       const elapsedSeconds = Math.floor((Date.now() - new Date(table.startTime).getTime()) / 1000)
-      const total = calcTotal({ ...table, active: true }, state.foods)
+      const total = calcTotal({ ...table, active: true }, state.foods, Date.now(), club?.min_session_price || 0)
 
       // 1. Create session record
       await supabase.from('sessions').insert([{
@@ -565,7 +568,7 @@ export function PosProvider({ children }) {
 
       const sessionsToInsert = tablesToStop.map(table => {
         const elapsedSeconds = Math.floor((nowMs - new Date(table.startTime).getTime()) / 1000)
-        const total = calcTotal({ ...table, active: true }, state.foods)
+        const total = calcTotal({ ...table, active: true }, state.foods, nowMs, club?.min_session_price || 0)
         return {
           club_id: club.id,
           table_id: table.id,
@@ -733,6 +736,20 @@ export function PosProvider({ children }) {
     removeTable: useCallback(async (id) => {
       const { error } = await supabase.from('tables').delete().eq('id', id)
       if (!error) dispatch({ type: 'UPDATE_TABLES', payload: state.tables.filter(t => t.id !== id) })
+    }, [state]),
+
+    updateTablePrice: useCallback(async ({ id, price }) => {
+      const { error } = await supabase
+        .from('tables')
+        .update({ price_per_hour: price })
+        .eq('id', id)
+      
+      if (!error) {
+        dispatch({ type: 'UPDATE_TABLE_PRICE', payload: { id, price } })
+      } else {
+        console.error('Update table price error:', error)
+        showToast('Stol narxini yangilashda xatolik yuz berdi', 'error')
+      }
     }, [state]),
   }
 

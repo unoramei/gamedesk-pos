@@ -37,12 +37,12 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-outline text-lg hidden sm:block">{icon}</span>
-            <h2 className="font-headline text-lg md:text-xl font-black tracking-tight text-on-surface truncate max-w-[150px] sm:max-w-none">{title}</h2>
+            <h2 className="font-headline text-lg md:text-xl font-bold tracking-tight text-on-surface truncate max-w-[150px] sm:max-w-none">{title}</h2>
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_8px_rgba(74,225,118,0.5)]" />
-            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-outline-variant">
-              System Online <span className="mx-1.5">|</span> <span className="text-tertiary uppercase">{activeTables} faol stol</span>
+          <div className="flex items-center gap-2 mt-1">
+            <div className="w-2 h-2 rounded-full bg-tertiary shadow-sm" />
+            <span className="text-xs font-semibold text-outline-variant">
+              Tizim onlayn <span className="mx-1.5 opacity-50">|</span> <span className="text-tertiary">{activeTables} ta faol stol</span>
             </span>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'dashboard' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
             <span className="material-symbols-outlined text-xl">dashboard</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">Boshqaruv</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Boshqaruv</span>
           </button>
 
           <button
@@ -64,7 +64,7 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'zonalar' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
             <span className="material-symbols-outlined text-xl">layers</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">Zonalar</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Zonalar</span>
           </button>
 
           <button
@@ -72,7 +72,7 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'foyda' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
             <span className="material-symbols-outlined text-xl">insights</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">Foyda</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Foyda</span>
           </button>
 
           <button
@@ -80,7 +80,7 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'smenalar' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
             <span className="material-symbols-outlined text-xl">badge</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">Smenalar</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Smenalar</span>
           </button>
 
           <button
@@ -88,7 +88,7 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-outline hover:text-indigo hover:bg-indigo/10 transition-all ${state.page === 'admin' ? 'text-indigo bg-indigo/10 shadow-sm' : ''}`}
           >
             <span className="material-symbols-outlined text-xl">settings_input_component</span>
-            <span className="text-[10px] font-black uppercase tracking-widest">Sozlamalar</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Sozlamalar</span>
           </button>
         </div>
 
@@ -105,7 +105,7 @@ export default function TopAppBar({ isSidebarOpen, onAddTable, onRefresh, onTogg
           <button
             id="add-table-btn"
             onClick={onAddTable}
-            className="flex items-center gap-1.5 sm:gap-2 bg-indigo text-white px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all active:scale-95 duration-150 hover:shadow-2xl hover:shadow-indigo/30"
+            className="flex items-center gap-1.5 sm:gap-2 bg-indigo text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-xl font-bold text-xs uppercase tracking-wider transition-all active:scale-95 duration-150 hover:shadow-lg hover:shadow-indigo/30"
           >
             <span className="material-symbols-outlined text-base sm:text-lg icon-filled">add_circle</span>
             <span className="hidden xs:inline">Stol qo'shish</span>

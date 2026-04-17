@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS clubs (
     subscription_expires_at TIMESTAMP WITH TIME ZONE,
     login TEXT,
     password TEXT,
+    auto_close BOOLEAN DEFAULT true,
+    safe_stop BOOLEAN DEFAULT true,
+    min_session_price INTEGER DEFAULT 2000,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
@@ -34,6 +37,7 @@ CREATE TABLE IF NOT EXISTS tables (
     name TEXT NOT NULL,
     is_active BOOLEAN DEFAULT false,
     start_time TIMESTAMP WITH TIME ZONE,
+    price_per_hour INTEGER, -- Null means it inherits from zone
     orders JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
@@ -93,18 +97,14 @@ DROP POLICY IF EXISTS "Foods: owner access" ON foods;
 DROP POLICY IF EXISTS "Shifts: owner access" ON shifts;
 DROP POLICY IF EXISTS "Sessions: owner access" ON sessions;
 
--- Yangi qoidalar (Policies)
--- Clubs uchun barchaga yozish va o'qish (SuperAdmin va signup uchun ochiq)
 CREATE POLICY "Clubs: select all" ON clubs FOR SELECT USING (true);
 CREATE POLICY "Clubs: insert all" ON clubs FOR INSERT WITH CHECK (true);
 CREATE POLICY "Clubs: update all" ON clubs FOR UPDATE USING (true);
 
--- Qolgan jadvallar uchun faqat o'zining klubiga (owner) tegishli yozuvlar ustida amallar
 CREATE POLICY "Zones: owner access" ON zones FOR ALL USING (club_id IN (SELECT id FROM clubs WHERE owner_id = auth.uid()));
 CREATE POLICY "Tables: owner access" ON tables FOR ALL USING (club_id IN (SELECT id FROM clubs WHERE owner_id = auth.uid()));
 CREATE POLICY "Foods: owner access" ON foods FOR ALL USING (club_id IN (SELECT id FROM clubs WHERE owner_id = auth.uid()));
 CREATE POLICY "Shifts: owner access" ON shifts FOR ALL USING (club_id IN (SELECT id FROM clubs WHERE owner_id = auth.uid()));
 CREATE POLICY "Sessions: owner access" ON sessions FOR ALL USING (club_id IN (SELECT id FROM clubs WHERE owner_id = auth.uid()));
 
--- O'zgarishlar e'lon qilinishi uchun
 NOTIFY pgrst, 'reload schema';

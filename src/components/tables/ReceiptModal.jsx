@@ -55,7 +55,7 @@ export default function ReceiptModal({ session, onClose }) {
         }
       `}</style>
 
-      <div className="receipt-container w-full max-w-sm bg-white text-black rounded-3xl overflow-hidden shadow-2xl p-8 font-sans print:rounded-none print:shadow-none print:max-w-none">
+      <div className="receipt-container w-full max-w-sm max-h-[90vh] overflow-y-auto no-scrollbar bg-white text-black rounded-3xl shadow-2xl p-8 font-sans print:overflow-visible print:max-h-none print:rounded-none print:shadow-none print:max-w-none">
         
         {/* Header - AXIPH Branding */}
         <div className="text-center mb-6">

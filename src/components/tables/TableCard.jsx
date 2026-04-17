@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { usePos, calcTotal, formatTime, formatPrice } from '../../context/PosContext'
+import { useAuth } from '../../context/AuthContext'
 import ReceiptModal from './ReceiptModal'
 
 // ─── Food Drawer ──────────────────────────────────────────────────────────────
@@ -8,7 +9,7 @@ function FoodDrawer({ table, onClose }) {
   const { state, addOrder, removeOrder } = usePos()
 
   const getQty = (foodId) => {
-    const o = table.orders.find(o => o.foodId === foodId)
+    const o = (table.orders || []).find(o => o.foodId === foodId)
     return o ? o.qty : 0
   }
 
@@ -109,7 +110,8 @@ function FoodDrawer({ table, onClose }) {
 
 function StopModal({ table, onConfirm, onCancel }) {
   const { state } = usePos()
-  const total = calcTotal(table, state.foods)
+  const { club } = useAuth()
+  const total = calcTotal(table, state.foods, Date.now(), club?.min_session_price || 0)
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
@@ -161,12 +163,15 @@ function StopModal({ table, onConfirm, onCancel }) {
 
 export default function TableCard({ table, selectable, selected, onSelect }) {
   const { state, startTable, stopTable, updateTablePrice } = usePos()
+  const { club } = useAuth()
   const [showFoodDrawer, setShowFoodDrawer] = useState(false)
-  const [showStopModal,  setShowStopModal]  = useState(false)
-  const [showReceipt,    setShowReceipt]    = useState(false)
-  const [receiptData,    setReceiptData]    = useState(null)
+  const [showStopModal, setShowStopModal] = useState(false)
+  const [showReceipt, setShowReceipt] = useState(false)
+  const [receiptData, setReceiptData] = useState(null)
   const [isEditingPrice, setIsEditingPrice] = useState(false)
-  const [editPriceVal,   setEditPriceVal]   = useState(String(table.pricePerHour))
+  const [editPriceVal, setEditPriceVal] = useState(String(table.pricePerHour))
+
+  const minPrice = club?.min_session_price || 0
 
   const commitPrice = () => {
     const val = parseInt(editPriceVal.replace(/\D/g, ''), 10)
@@ -184,7 +189,7 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
       pricePerHour: table.pricePerHour,
       elapsedSeconds,
       orders: [...table.orders],
-      total: calcTotal({ ...table, elapsedSeconds }, state.foods),
+      total: calcTotal({ ...table, elapsedSeconds }, state.foods, Date.now(), minPrice),
       endTime: Date.now()
     }
     setReceiptData(session)
@@ -201,8 +206,8 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
     return () => clearInterval(id)
   }, [table.active])
 
-  const total  = calcTotal(table, state.foods, now)
-  const isVip  = table.isVip
+  const total = calcTotal(table, state.foods, now, minPrice)
+  const isVip = table.isVip
 
   // Selection/Styling
   const borderClass = selectable
@@ -215,9 +220,8 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
         ? 'border-2 border-tertiary/20 bg-surface-container/60 active-card'
         : 'border border-outline-variant/20 bg-surface-container/40 opacity-80 hover:opacity-100'
 
-  const cardClass = `relative rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col gap-4 md:gap-5 transition-all duration-500 overflow-hidden glass-card ${
-    selectable && !selected ? 'grayscale-[50%]' : ''
-  } ${borderClass}`
+  const cardClass = `relative rounded-2xl md:rounded-[2rem] p-4 md:p-6 flex flex-col gap-4 md:gap-5 transition-all duration-200 overflow-hidden glass-card ${selectable && !selected ? 'grayscale-[50%]' : ''
+    } ${borderClass}`
 
   const timerClass = isVip
     ? 'text-amber'
@@ -228,7 +232,7 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
   return (
     <>
       <div className={cardClass} onClick={() => selectable && onSelect && onSelect()}>
-        
+
         {/* VIP ambient glow */}
         {isVip && (
           <div className="absolute -right-10 -top-10 w-32 h-32 bg-amber/10 rounded-full blur-3xl pointer-events-none" />
@@ -237,13 +241,13 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
         {/* Header */}
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 ${table.active ? 'bg-indigo/10 border-indigo/20 text-indigo' : 'bg-surface-container border-outline-variant/10 text-outline'}`}>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${table.active ? 'bg-indigo/10 border-indigo/20 text-indigo' : 'bg-surface-container border-outline-variant/10 text-outline'}`}>
               <span className="material-symbols-outlined text-2xl icon-filled">
                 {isVip ? 'workspace_premium' : 'monitor'}
               </span>
             </div>
             <div>
-              <h4 className="font-black text-on-surface text-sm tracking-tight">{table.name}</h4>
+              <h4 className="font-bold text-on-surface text-base tracking-tight">{table.name}</h4>
               <div className="flex items-center gap-1.5 min-h-[16px] mt-0.5">
                 {isEditingPrice ? (
                   <div className="flex items-center gap-1.5 bg-surface-container-highest border border-indigo rounded-xl px-2 py-0.5" onClick={e => e.stopPropagation()}>
@@ -252,7 +256,7 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
                   </div>
                 ) : (
                   <div className="flex items-center gap-1.5 group/p cursor-pointer" onClick={(e) => { e.stopPropagation(); setEditPriceVal(String(table.pricePerHour)); setIsEditingPrice(true); }}>
-                    <p className={`text-[10px] font-black uppercase tracking-widest ${isVip ? 'text-amber' : 'text-outline'}`}>{formatPrice(table.pricePerHour)}</p>
+                    <p className={`text-[11px] font-semibold tracking-wider ${isVip ? 'text-amber' : 'text-outline'}`}>{formatPrice(table.pricePerHour)}</p>
                     <span className="material-symbols-outlined text-[12px] text-outline opacity-0 group-hover/p:opacity-100 transition-opacity">edit_note</span>
                   </div>
                 )}
@@ -260,38 +264,38 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
             </div>
           </div>
 
-          <div className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all duration-500 ${table.active ? 'bg-tertiary/10 text-tertiary border-tertiary/20' : 'bg-outline-variant/10 text-outline border-outline-variant/10'}`}>
-             {table.active ? 'Faol' : 'Bo\'sh'}
+          <div className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-colors duration-200 ${table.active ? 'bg-tertiary/10 text-tertiary border-tertiary/20' : 'bg-outline-variant/10 text-outline border-outline-variant/10'}`}>
+            {table.active ? 'Faol' : 'Bo\'sh'}
           </div>
         </div>
 
         {/* Timer Display */}
         <div className="flex flex-col items-center justify-center py-2">
-          <span className={`font-mono font-black tracking-tighter leading-none select-none transition-all duration-500 ${timerClass} ${table.active ? 'text-4xl sm:text-5xl scale-110 drop-shadow-[0_0_15px_rgba(74,225,118,0.2)]' : 'text-3xl sm:text-4xl'}`}>
+          <span className={`font-mono font-bold tracking-tighter leading-none select-none transition-all duration-300 ${timerClass} ${table.active ? 'text-4xl sm:text-5xl scale-110 drop-shadow-sm' : 'text-3xl sm:text-4xl'}`}>
             {table.active ? formatTime(Math.floor((now - table.startTime) / 1000)) : '00:00:00'}
           </span>
-          <p className="text-[10px] text-outline-variant font-black uppercase tracking-[0.3em] mt-3">{table.active ? 'Jonli seans' : 'Tayyor'}</p>
+          <p className="text-[11px] text-outline-variant font-semibold uppercase tracking-widest mt-4">{table.active ? 'Jonli seans' : 'Tayyor'}</p>
         </div>
 
         {/* Orders List */}
         <div className="space-y-3">
           <div className="flex justify-between items-center px-1">
-            <span className="text-[10px] font-black text-outline-variant uppercase tracking-[0.2em]">Servis</span>
+            <span className="text-[11px] font-bold text-outline-variant uppercase tracking-wider">Servis</span>
             {table.active && !selectable && (
               <button onClick={(e) => { e.stopPropagation(); setShowFoodDrawer(true); }} className="w-7 h-7 flex items-center justify-center rounded-xl bg-indigo/5 text-indigo hover:bg-indigo hover:text-white transition-all border border-indigo/10 shadow-sm"><span className="material-symbols-outlined text-sm">add</span></button>
             )}
           </div>
           <div className="flex flex-wrap gap-2 min-h-[32px] content-start">
-            {table.orders.length === 0 ? (
+            {(!table.orders || table.orders.length === 0) ? (
               <div className="flex items-center justify-center w-full min-h-[32px] border border-dashed border-outline-variant/10 rounded-2xl">
-                <span className="text-[9px] text-outline-variant font-black uppercase tracking-[0.2em]">—</span>
+                <span className="text-[10px] text-outline-variant font-bold uppercase tracking-wider">—</span>
               </div>
             ) : (
-              table.orders.map(o => {
+              (table.orders || []).map(o => {
                 const food = state.foods.find(f => f.id === o.foodId)
                 return (
-                  <span key={o.foodId} className="flex items-center gap-2 px-3 py-1.5 bg-surface-container-highest/50 text-on-surface text-[10px] font-black rounded-xl border border-outline-variant/10">
-                    {food?.name} <span className="text-outline">× {o.qty}</span>
+                  <span key={o.foodId} className="flex items-center gap-2 px-3 py-1.5 bg-surface-container-highest/50 text-on-surface text-[11px] font-semibold rounded-xl border border-outline-variant/10">
+                    {food?.name} <span className="text-outline text-xs">× {o.qty}</span>
                   </span>
                 )
               })
@@ -302,36 +306,36 @@ export default function TableCard({ table, selectable, selected, onSelect }) {
         {/* Footer */}
         <div className="pt-5 border-t border-outline-variant/10 flex justify-between items-end">
           <div className="flex flex-col">
-            <span className="text-[9px] font-black text-outline uppercase tracking-[0.2em] mb-1">Hisoblangan</span>
-            <span className={`text-2xl font-black font-mono tracking-tighter ${table.active ? 'text-on-surface' : 'text-outline-variant'}`}>{formatPrice(total)}</span>
+            <span className="text-[11px] font-bold text-outline uppercase tracking-wider mb-1">Hisoblangan</span>
+            <span className={`text-2xl font-bold font-mono tracking-tighter ${table.active ? 'text-on-surface' : 'text-outline-variant'}`}>{formatPrice(total)}</span>
           </div>
 
           {!selectable && (
             <button
-               onClick={(e) => { e.stopPropagation(); table.active ? setShowStopModal(true) : startTable(table.id) }}
-               className={`relative overflow-hidden px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[1.25rem] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all duration-300 active:scale-95 group/btn ${table.active ? 'bg-error text-white shadow-[0_8px_20px_rgba(248,113,113,0.3)] hover:shadow-[0_12px_25px_rgba(248,113,113,0.4)]' : 'bg-white/[0.03] text-indigo border border-indigo/30 hover:bg-indigo hover:text-white shadow-[0_8px_20px_rgba(99,102,241,0.1)] hover:shadow-[0_12px_25px_rgba(99,102,241,0.3)]'}`}
-             >
-               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-               <span className="relative z-10">{table.active ? 'Tugatish' : 'Boshlash'}</span>
-             </button>
+              onClick={(e) => { e.stopPropagation(); table.active ? setShowStopModal(true) : startTable(table.id) }}
+              className={`relative overflow-hidden px-5 sm:px-8 py-3 sm:py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all duration-200 active:scale-95 group/btn ${table.active ? 'bg-error text-white shadow-md hover:shadow-lg' : 'bg-white/[0.03] text-indigo border border-indigo/30 hover:bg-indigo hover:text-white shadow-sm hover:shadow-md'}`}
+            >
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-200" />
+              <span className="relative z-10">{table.active ? 'Tugatish' : 'Boshlash'}</span>
+            </button>
           )}
         </div>
       </div>
 
       {showFoodDrawer && <FoodDrawer table={table} onClose={() => setShowFoodDrawer(false)} />}
-      
+
       {showStopModal && (
-        <StopModal 
-          table={table} 
+        <StopModal
+          table={table}
           onConfirm={handleStop}
-          onCancel={() => setShowStopModal(false)} 
+          onCancel={() => setShowStopModal(false)}
         />
       )}
 
       {showReceipt && (
-        <ReceiptModal 
-          session={receiptData} 
-          onClose={() => setShowReceipt(false)} 
+        <ReceiptModal
+          session={receiptData}
+          onClose={() => setShowReceipt(false)}
         />
       )}
     </>

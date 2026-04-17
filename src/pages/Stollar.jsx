@@ -62,7 +62,7 @@ export default function Stollar({ onAddTable }) {
                setIsMultiSelect(!isMultiSelect)
                setSelectedIds([])
              }}
-             className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] transition-all active:scale-[0.98] border ${isMultiSelect ? 'bg-indigo border-indigo shadow-[0_10px_20px_rgba(99,102,241,0.2)] text-white' : 'bg-white/[0.02] text-white/50 hover:bg-white/5 hover:text-white border-white/5'}`}
+             className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] border ${isMultiSelect ? 'bg-indigo border-indigo shadow-md text-white' : 'bg-white/[0.02] text-white/50 hover:bg-white/5 hover:text-white border-white/5'}`}
            >
              <span className="material-symbols-outlined text-[16px]">{isMultiSelect ? 'close' : 'checklist'}</span>
              {isMultiSelect ? 'Bekor qilish' : 'Guruhli tanlash'}
@@ -78,7 +78,7 @@ export default function Stollar({ onAddTable }) {
         return (
           <section key={zone.id} id={`zone-${zone.id}`} className="h-full scroll-mt-24">
             {/* Zone header Card */}
-            <div className="bg-surface-container/30 border border-outline-variant/10 rounded-[2rem] p-6 mb-8 glass-card">
+            <div className="bg-surface-container/30 border border-outline-variant/10 rounded-2xl p-5 mb-6 glass-card">
               <button
                 className="w-full flex items-center justify-between group"
                 onClick={() => toggleZone(zone.id)}
@@ -96,15 +96,15 @@ export default function Stollar({ onAddTable }) {
                     </span>
                   </div>
                   <div className="text-left">
-                    <h3 className="font-black text-sm uppercase tracking-wider text-on-surface">
+                    <h3 className="font-bold text-base uppercase tracking-tight text-on-surface">
                       {zone.name}
                     </h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-outline font-bold uppercase tracking-[0.2em]">{zone.label || 'ZONA'}</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-outline font-semibold uppercase tracking-wider">{zone.label || 'ZONA'}</span>
                       {activeCount > 0 && (
                         <>
                           <span className="text-outline-variant">•</span>
-                          <span className="text-[10px] font-black text-tertiary uppercase tracking-widest">
+                          <span className="text-[11px] font-bold text-tertiary uppercase tracking-widest">
                             {activeCount} faol
                           </span>
                         </>
@@ -140,18 +140,18 @@ export default function Stollar({ onAddTable }) {
       {state.tables.length === 0 && (
         <div className="flex flex-col items-center justify-center py-32 gap-8 text-outline">
           <div className="relative">
-            <div className="absolute inset-0 bg-indigo/20 blur-3xl rounded-full" />
-            <div className="relative w-32 h-32 rounded-[2.5rem] bg-surface-container/40 border border-outline-variant/10 flex items-center justify-center glass-card">
-              <span className="material-symbols-outlined text-6xl opacity-50">layers</span>
+            <div className="absolute inset-0 bg-indigo/10 blur-2xl rounded-full" />
+            <div className="relative w-24 h-24 rounded-3xl bg-surface-container/40 border border-outline-variant/10 flex items-center justify-center glass-card">
+              <span className="material-symbols-outlined text-4xl opacity-50">layers</span>
             </div>
           </div>
           <div className="text-center space-y-2">
-            <p className="text-lg font-black text-on-surface uppercase tracking-[0.3em]">Hali stollar yo'q</p>
-            <p className="text-xs text-outline font-medium tracking-wide">Tizimni ishga tushirish uchun birinchi stolni qo'shing</p>
+            <p className="text-lg font-bold text-on-surface uppercase tracking-wider">Hali stollar yo'q</p>
+            <p className="text-sm text-outline font-medium tracking-wide">Tizimni ishga tushirish uchun birinchi stolni qo'shing</p>
           </div>
           <button
             onClick={onAddTable}
-            className="flex items-center gap-3 bg-indigo text-white px-8 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl shadow-indigo/20 hover:opacity-90 active:scale-95 transition-all"
+            className="flex items-center gap-2 bg-indigo text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
           >
             <span className="material-symbols-outlined text-xl">add_circle</span>
             Yangi stol qo'shish
@@ -161,20 +161,19 @@ export default function Stollar({ onAddTable }) {
 
       {/* Floating Action Bar */}
       {isMultiSelect && (
-        <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 bg-[#0c0c0e]/95 backdrop-blur-[60px] border border-white/10 px-4 sm:px-8 py-3.5 sm:py-5 rounded-3xl sm:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] ring-1 ring-white/5 z-[100] flex items-center gap-4 sm:gap-8 w-[95%] sm:w-auto overflow-x-auto no-scrollbar animate-in slide-in-from-bottom-10 fade-in duration-300">
-          <div className="flex flex-col border-r border-white/10 pr-4 sm:pr-8 mr-1 sm:mr-2">
-            <span className="text-[8px] sm:text-[9px] font-black text-white/40 uppercase tracking-[0.3em] leading-tight">Tanlandi</span>
-            <span className="text-xl sm:text-3xl font-black text-white leading-none mt-1.5 whitespace-nowrap">{selectedIds.length} <span className="text-[9px] sm:text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">ta</span></span>
+        <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 bg-[#0c0c0e]/95 backdrop-blur-3xl border border-white/10 px-4 sm:px-6 py-3 sm:py-4 rounded-3xl shadow-2xl flex items-center gap-4 sm:gap-6 w-[95%] sm:w-auto overflow-x-auto no-scrollbar animate-in slide-in-from-bottom-6 fade-in duration-200">
+          <div className="flex flex-col border-r border-white/10 pr-4 sm:pr-6">
+            <span className="text-[10px] font-semibold text-white/50 uppercase tracking-widest leading-tight">Tanlandi</span>
+            <span className="text-xl sm:text-2xl font-bold text-white leading-none mt-1 whitespace-nowrap">{selectedIds.length} <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">ta</span></span>
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {inactiveSelected.length > 0 && (
               <button
                 onClick={handleStartMultiple}
-                className="group/btn relative overflow-hidden flex items-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[8px] sm:text-[10px] text-white/70 border border-white/10 bg-white/[0.03] hover:bg-white/10 hover:text-white active:scale-[0.98] transition-all shadow-lg whitespace-nowrap"
+                className="group/btn relative overflow-hidden flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold uppercase tracking-wider text-[11px] sm:text-xs text-white/90 border border-white/10 bg-white/[0.03] hover:bg-white/10 active:scale-[0.98] transition-all whitespace-nowrap"
               >
-                <div className="absolute inset-0 bg-white/5 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-                <span className="material-symbols-outlined text-[14px] sm:text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                <span className="material-symbols-outlined text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
                 <span className="relative z-10">Boshlash <span className="hidden sm:inline">({inactiveSelected.length})</span></span>
               </button>
             )}
@@ -182,16 +181,15 @@ export default function Stollar({ onAddTable }) {
             {activeSelected.length > 0 && (
               <button
                 onClick={handleStopMultiple}
-                className="group/btn relative overflow-hidden flex items-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[8px] sm:text-[10px] bg-error text-white shadow-[0_10px_20px_rgba(248,113,113,0.3)] hover:shadow-[0_15px_30px_rgba(248,113,113,0.4)] active:scale-[0.98] transition-all whitespace-nowrap"
+                className="group/btn relative overflow-hidden flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold uppercase tracking-wider text-[11px] sm:text-xs bg-error text-white hover:bg-red-600 active:scale-[0.98] transition-all whitespace-nowrap"
               >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-                <span className="material-symbols-outlined text-[14px] sm:text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>stop</span>
+                <span className="material-symbols-outlined text-[16px] relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>stop</span>
                 <span className="relative z-10">Tugatish <span className="hidden sm:inline">({activeSelected.length})</span></span>
               </button>
             )}
 
             {selectedIds.length === 0 && (
-               <div className="px-4 text-[10px] font-black text-white/30 uppercase tracking-[0.2em] italic">Stol tanlang...</div>
+               <div className="px-4 text-[11px] font-semibold text-white/40 uppercase tracking-wider italic">Stol tanlang...</div>
             )}
           </div>
         </div>

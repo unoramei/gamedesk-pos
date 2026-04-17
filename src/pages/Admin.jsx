@@ -1,5 +1,6 @@
 import { usePos, formatPrice } from '../context/PosContext'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import ConfirmModal from '../components/ui/ConfirmModal'
 import { useState } from 'react'
 
@@ -371,9 +372,23 @@ function FoodManager() {
 }
 
 function Settings() {
-  const [autoClose, setAutoClose] = useState(true)
-  const [confirmStop, setConfirmStop] = useState(true)
-  const [minPrice, setMinPrice] = useState(2000)
+  const { club, updateClub } = useAuth()
+  const { showToast } = useToast()
+  const [autoClose, setAutoClose] = useState(club?.auto_close ?? true)
+  const [confirmStop, setConfirmStop] = useState(club?.safe_stop ?? true)
+  const [minPrice, setMinPrice] = useState(club?.min_session_price ?? 2000)
+  const [loading, setLoading] = useState(false)
+
+  const handleSave = async () => {
+    setLoading(true)
+    const { error } = await updateClub({
+      auto_close: autoClose,
+      safe_stop: confirmStop,
+      min_session_price: minPrice
+    })
+    setLoading(false)
+    if (!error) showToast('Sozlamalar muvaffaqiyatli saqlandi', 'success')
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -407,9 +422,19 @@ function Settings() {
           </div>
         </div>
         
-        <button className="w-full bg-indigo text-white font-black py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:shadow-2xl hover:shadow-indigo/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-          <span className="material-symbols-outlined text-xl">save</span>
-          Barcha sozlamalarni saqlash
+        <button 
+          onClick={handleSave}
+          disabled={loading}
+          className="w-full bg-indigo text-white font-black py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:shadow-2xl hover:shadow-indigo/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+        >
+          {loading ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-xl">save</span>
+              Barcha sozlamalarni saqlash
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -418,15 +443,15 @@ function Settings() {
 
 function SubscriptionManager() {
   const { club, updateClub } = useAuth()
+  const { showToast } = useToast()
   const [date, setDate] = useState(club?.subscription_expires_at ? new Date(club.subscription_expires_at).toISOString().split('T')[0] : '')
   const [loading, setLoading] = useState(false)
 
   const handleSave = async () => {
     setLoading(true)
-    const { error } = await updateClub({ subscription_expires_at: new Date(date).toISOString() })
     setLoading(false)
-    if (error) alert('Xatolik yuz berdi: ' + error.message)
-    else alert('Obuna muddati yangilandi')
+    if (error) showToast('Xatolik yuz berdi: ' + error.message, 'error')
+    else showToast('Obuna muddati yangilandi', 'success')
   }
 
   const isExpired = club?.subscription_expires_at && new Date(club.subscription_expires_at) < new Date()

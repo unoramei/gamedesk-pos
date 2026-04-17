@@ -14,17 +14,37 @@ import LoginPage from './pages/Login'
 import SuperAdmin from './pages/SuperAdmin'
 import FrozenScreen from './pages/FrozenScreen'
 import Shifts from './pages/Shifts'
+import { ErrorBoundary } from './components/ui/ErrorBoundary'
+import ContextMenu from './components/ui/ContextMenu'
 
 function AppShell() {
   const { state } = usePos()
   const [showAddTable, setShowAddTable] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth >= 1024)
+  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0 })
 
   const handleRefresh = () => setRefreshKey(k => k + 1)
 
+  const handleContextMenu = (e) => {
+    e.preventDefault()
+    setContextMenu({ show: true, x: e.clientX, y: e.clientY })
+  }
+
   return (
-    <div className="flex min-h-screen bg-background relative selection:bg-indigo/30 selection:text-indigo">
+    <div 
+      className="flex min-h-screen bg-background relative selection:bg-indigo/30 selection:text-indigo"
+      onContextMenu={handleContextMenu}
+    >
+      {contextMenu.show && (
+        <ContextMenu 
+          x={contextMenu.x} 
+          y={contextMenu.y} 
+          onClose={() => setContextMenu({ ...contextMenu, show: false })} 
+          onRefresh={handleRefresh}
+        />
+      )}
+
       {!state.activeShift && <ShiftOverlay />}
 
       {/* Mobile backdrop */}
@@ -105,5 +125,9 @@ function AppContent() {
     return <FrozenScreen />
   }
 
-  return <AppShell />
+  return (
+    <ErrorBoundary>
+      <AppShell />
+    </ErrorBoundary>
+  )
 }
